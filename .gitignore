@@ -1,0 +1,7 @@
+.env
+.env.*
+node_modules/
+__pycache__/
+*.pyc
+frontend/.angular/
+backend/.playwright-cli/
