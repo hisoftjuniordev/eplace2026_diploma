@@ -174,6 +174,25 @@ export class PayrollWizardComponent implements OnInit {
     this.http.post<{ id: string; status: string }>(`${API}/payroll/runs`, this.periodForm.value).subscribe({
       next: (res) => this.router.navigate(['/payroll', res.id, 'progress']),
       error: (err) => {
+        if (err?.status === 409) {
+          const { leto, mesec } = this.periodForm.value;
+          this.http.get<{ id: string; leto: number; mesec: number }[]>(`${API}/payroll/runs`).subscribe({
+            next: (runs) => {
+              const existing = runs.find(r => r.leto === leto && r.mesec === mesec);
+              if (existing) {
+                this.router.navigate(['/payroll', existing.id, 'progress']);
+              } else {
+                this.error = err?.error?.error ?? 'Napaka pri sprožitvi obračuna';
+                this.loading = false;
+              }
+            },
+            error: () => {
+              this.error = err?.error?.error ?? 'Napaka pri sprožitvi obračuna';
+              this.loading = false;
+            },
+          });
+          return;
+        }
         this.error = err?.error?.error ?? 'Napaka pri sprožitvi obračuna';
         this.loading = false;
       },
