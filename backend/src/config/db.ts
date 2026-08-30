@@ -8,8 +8,8 @@ const config: sql.config = {
   user: process.env.DB_USER || 'sa',
   password: process.env.DB_PASSWORD,
   options: {
-    encrypt: false,
-    trustServerCertificate: true,
+    encrypt: true,
+    trustServerCertificate: false,
   },
   pool: {
     max: 10,
