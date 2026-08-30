@@ -9,6 +9,7 @@ import {
   updateEmployee,
   deleteEmployee,
 } from '../repositories/employee.repo';
+import { logAudit } from '../utils/audit';
 
 export const employeesRouter = Router();
 
@@ -33,6 +34,7 @@ employeesRouter.post(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const emp = await createEmployee(req.user!.tenantId, req.body);
+      void logAudit(req.user!.tenantId, req.user!.email, 'VNOS', 'employees', `${emp.priimek} ${emp.ime}`, req.ip);
       res.status(201).json(emp);
     } catch (err: any) {
       if (err?.number === 2627 || err?.number === 2601) {
@@ -51,6 +53,7 @@ employeesRouter.put(
   async (req: Request, res: Response): Promise<void> => {
     const emp = await updateEmployee(req.user!.tenantId, req.params.id, req.body);
     if (!emp) { res.status(404).json({ error: 'Delavec ne obstaja' }); return; }
+    void logAudit(req.user!.tenantId, req.user!.email, 'POPRAVEK', 'employees', `${emp.priimek} ${emp.ime}`, req.ip);
     res.json(emp);
   }
 );
@@ -61,6 +64,7 @@ employeesRouter.delete(
   async (req: Request, res: Response): Promise<void> => {
     const deleted = await deleteEmployee(req.user!.tenantId, req.params.id);
     if (!deleted) { res.status(404).json({ error: 'Delavec ne obstaja' }); return; }
+    void logAudit(req.user!.tenantId, req.user!.email, 'BRISANJE', 'employees', req.params.id, req.ip);
     res.status(204).send();
   }
 );

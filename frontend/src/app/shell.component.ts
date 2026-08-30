@@ -57,6 +57,15 @@ import { AuthService } from './core/auth.service';
           </a>
 
           <a *ngIf="auth.isSkrbnik()"
+             routerLink="/payroll-params"
+             routerLinkActive="bg-blue-50 text-blue-700 font-medium"
+             class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-gray-600
+                    hover:bg-gray-50 hover:text-gray-900 transition-colors">
+            <span class="text-base">📊</span>
+            <span>Parametri</span>
+          </a>
+
+          <a *ngIf="auth.isSkrbnik()"
              routerLink="/settings"
              routerLinkActive="bg-blue-50 text-blue-700 font-medium"
              class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-gray-600

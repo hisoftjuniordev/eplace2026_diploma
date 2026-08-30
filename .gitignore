@@ -5,3 +5,4 @@ __pycache__/
 *.pyc
 frontend/.angular/
 backend/.playwright-cli/
+backend/dist/

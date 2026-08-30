@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "nodemon --exec ts-node src/app.ts",
+    "dev:all": "concurrently -n API,WORKER -c cyan,yellow \"npm run dev\" \"npm run worker\"",
     "build": "tsc",
     "start": "node dist/app.js",
     "worker": "ts-node src/workers/payroll.worker.ts",
@@ -30,6 +31,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/mssql": "^9.1.5",
     "@types/node": "^20.12.7",
+    "concurrently": "^9.0.0",
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"

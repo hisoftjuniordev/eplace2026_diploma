@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
-import { roleMiddleware } from '../middleware/roles.middleware';
+import { requireRole } from '../middleware/role.middleware';
+import { logAudit } from '../utils/audit';
 import {
   createPayrollRun,
   getPayrollRuns,
@@ -11,7 +12,7 @@ import { payrollQueue } from '../queues/payroll.queue';
 export const payrollRouter = Router();
 
 // H1 DOKAZ: vrne 202 Accepted v <20ms, worker teče v ozadju
-payrollRouter.post('/runs', roleMiddleware('Skrbnik', 'SistemskiAdmin'), async (req: Request, res: Response): Promise<void> => {
+payrollRouter.post('/runs', requireRole('Skrbnik', 'SistemskiAdmin'), async (req: Request, res: Response): Promise<void> => {
   const { leto, mesec, datum_izplacila } = req.body;
   if (!leto || !mesec || !datum_izplacila) {
     res.status(400).json({ error: 'Leto, mesec in datum_izplacila so obvezni' });
@@ -28,6 +29,8 @@ payrollRouter.post('/runs', roleMiddleware('Skrbnik', 'SistemskiAdmin'), async (
       leto,
       mesec,
     });
+
+    void logAudit(req.user!.tenantId, req.user!.email, 'VNOS', 'payroll_runs', `Obračun ${leto}/${mesec}`, req.ip);
 
     // H1: HTTP 202 takoj
     res.status(202).json({ id: run.id, status: 'Procesiranje' });

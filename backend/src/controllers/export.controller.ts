@@ -4,6 +4,7 @@ import { sysQuery, withTenant } from '../config/db';
 import { generateSepaXml } from '../xml/sepa.generator';
 import { generateVodXml } from '../xml/vod.generator';
 import { generateRekoXml } from '../xml/reko.generator';
+import { logAudit } from '../utils/audit';
 import sql from 'mssql';
 
 export const exportRouter = Router();
@@ -36,6 +37,7 @@ exportRouter.get('/sepa/:runId', async (req: Request, res: Response): Promise<vo
     const mesecStr = String(run.mesec).padStart(2, '0');
     const filename = `sepa_${run.leto}_${mesecStr}_${tenant.davcna_stevilka}.xml`;
 
+    void logAudit(tenantId, req.user!.email, 'IZVOZ', 'payroll_runs', `SEPA ${run.leto}/${run.mesec}`, req.ip);
     res.setHeader('Content-Type', 'application/xml');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(xml);
@@ -61,6 +63,7 @@ exportRouter.get('/vod/:runId', async (req: Request, res: Response): Promise<voi
     const tenant = await getTenant(tenantId);
     const filename = `vod_${run.leto}_${mesecStr}_${tenant?.davcna_stevilka ?? 'export'}.xml`;
 
+    void logAudit(tenantId, req.user!.email, 'IZVOZ', 'payroll_runs', `VOD ${run.leto}/${run.mesec}`, req.ip);
     res.setHeader('Content-Type', 'application/xml');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(xml);
@@ -90,7 +93,7 @@ exportRouter.get('/rek/:runId', async (req: Request, res: Response): Promise<voi
           pl.*,
           e.ime, e.priimek, e.emso,
           e.davcna_stevilka AS davcna_stevilka_del,
-          ISNULL(h.m01_ure,       0) AS m01_ure,
+          ISNULL(h.m01_redno_ure, 0) AS m01_ure,
           ISNULL(h.m03_nadure_ure,0) AS m03_nadure_ure
         FROM dbo.payroll_lines pl
         JOIN dbo.employees e ON e.id = pl.employee_id
@@ -110,6 +113,7 @@ exportRouter.get('/rek/:runId', async (req: Request, res: Response): Promise<voi
     const mesecStr = String(run.mesec).padStart(2, '0');
     const filename = `reko_${run.leto}_${mesecStr}_${tenant.davcna_stevilka}.xml`;
 
+    void logAudit(tenantId, req.user!.email, 'IZVOZ', 'payroll_runs', `REK-O ${run.leto}/${run.mesec}`, req.ip);
     res.setHeader('Content-Type', 'application/xml');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(xml);

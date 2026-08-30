@@ -76,6 +76,12 @@ export const routes: Routes = [
           import('./features/settings/settings.component').then((m) => m.SettingsComponent),
       },
       {
+        path: 'payroll-params',
+        canActivate: [skrbnikGuard],
+        loadComponent: () =>
+          import('./features/payroll-params/payroll-params.component').then((m) => m.PayrollParamsComponent),
+      },
+      {
         path: 'payroll/:id/payslip/:empId',
         loadComponent: () =>
           import('./features/payroll/payslip.component').then((m) => m.PayslipComponent),
