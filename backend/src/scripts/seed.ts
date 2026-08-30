@@ -37,7 +37,11 @@ async function seed() {
   `);
   console.log('[Seed] Tenants created');
 
-  // Users
+  // Users — set SESSION_CONTEXT before each insert (RLS BLOCK predicate)
+  const ctxA = pool.request();
+  ctxA.input('tIdA', sql.UniqueIdentifier, TENANT_A_ID);
+  await ctxA.query(`EXEC sp_set_session_context @key=N'tenant_id', @value=@tIdA, @readonly=0`);
+
   const req1 = pool.request();
   req1.input('hash', sql.VarChar, hash);
   await req1.query(`
@@ -45,6 +49,10 @@ async function seed() {
     INSERT INTO dbo.users (tenant_id, email, geslo_hash, ime, priimek, vloga)
     VALUES ('${TENANT_A_ID}', 'admin@a.si', @hash, 'Administrator', 'A', 'Skrbnik');
   `);
+
+  const ctxB = pool.request();
+  ctxB.input('tIdB', sql.UniqueIdentifier, TENANT_B_ID);
+  await ctxB.query(`EXEC sp_set_session_context @key=N'tenant_id', @value=@tIdB, @readonly=0`);
 
   const req2 = pool.request();
   req2.input('hash', sql.VarChar, hash);
