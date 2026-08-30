@@ -5,11 +5,15 @@ let _client: Redis | null = null;
 
 export function getRedis(): Redis {
   if (!_client) {
-    _client = new Redis({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379'),
-      maxRetriesPerRequest: null,
-    });
+    if (process.env.REDIS_URL) {
+      _client = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: null });
+    } else {
+      _client = new Redis({
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
+        maxRetriesPerRequest: null,
+      });
+    }
     _client.on('connect', () => console.log('[Redis] Connected'));
     _client.on('error', (err) => console.error('[Redis] Error:', err));
   }
