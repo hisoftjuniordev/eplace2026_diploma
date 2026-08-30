@@ -2,6 +2,9 @@
   "name": "eplace2026-backend",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "dev": "nodemon --exec ts-node src/app.ts",
     "dev:all": "concurrently -n API,WORKER -c cyan,yellow \"npm run dev\" \"npm run worker\"",
