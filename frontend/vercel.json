@@ -1,0 +1,5 @@
+{
+  "outputDirectory": "dist/eplace2026-frontend/browser",
+  "buildCommand": "npm run build -- --configuration production",
+  "framework": "angular"
+}
