@@ -12,6 +12,7 @@ import { payrollParamsRouter } from './controllers/payroll-params.controller';
 import { settingsRouter } from './controllers/settings.controller';
 import { authMiddleware } from './middleware/auth.middleware';
 import { getPool } from './config/db';
+import './workers/payroll.worker';
 
 const app = express();
 
@@ -43,7 +44,7 @@ async function main() {
   await getPool();
   app.listen(PORT, () => {
     console.log(`[App] ePlače 2026 backend running on http://localhost:${PORT}`);
-    console.log('[App] Start worker separately: npm run worker');
+    console.log('[App] Payroll worker running in-process');
   });
 }
 
