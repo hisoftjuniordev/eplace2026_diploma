@@ -52,7 +52,17 @@ import { AuthService } from '../../core/auth.service';
           </button>
         </form>
 
-        <p class="mt-4 text-xs text-gray-400 text-center">Testni dostop: admin&#64;a.si / Test1234!</p>
+        <div class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-md">
+          <p class="text-xs text-gray-500 mb-2 font-medium">Testni dostop</p>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-gray-400 w-10 shrink-0">Email</span>
+            <input readonly value="admin@a.si" onclick="this.select()" class="flex-1 border border-blue-200 rounded px-2 py-1 text-base font-mono font-bold text-blue-800 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300" />
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <span class="text-xs text-gray-400 w-10 shrink-0">Geslo</span>
+            <input readonly value="Test1234!" onclick="this.select()" class="flex-1 border border-blue-200 rounded px-2 py-1 text-base font-mono font-bold text-blue-800 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300" />
+          </div>
+        </div>
       </div>
     </div>
   `,
