@@ -9,18 +9,118 @@ const API = environment.apiUrl;
 
 interface Employee { id: string; ime: string; priimek: string; bruto_osnova: number; }
 
+interface PayrollRun {
+  id: string;
+  leto: number;
+  mesec: number;
+  datum_izplacila: string;
+  status_obracuna: 'Osnutek' | 'Procesiranje' | 'Zakljucen' | 'Napaka';
+  progress_procent: number;
+  ustvarjen_ob: string;
+  napaka_opis: string | null;
+}
+
+const MESECI = ['', 'Januar', 'Februar', 'Marec', 'April', 'Maj', 'Junij',
+                'Julij', 'Avgust', 'September', 'Oktober', 'November', 'December'];
+
 @Component({
   selector: 'app-payroll-wizard',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
     <div class="p-6">
-      <div class="mb-6">
-        <h1 class="text-xl font-semibold text-gray-900">Obračun plač</h1>
-        <p class="text-sm text-gray-500 mt-0.5">Mesečni obračun plač za vse delavce</p>
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Obračun plač</h1>
+          <p class="text-sm text-gray-500 mt-0.5">Mesečni obračun plač za vse delavce</p>
+        </div>
+        <button *ngIf="view() === 'history'"
+                (click)="view.set('wizard'); korak.set(1)"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700 font-medium">
+          + Nov obračun
+        </button>
+        <button *ngIf="view() === 'wizard'"
+                (click)="view.set('history')"
+                class="text-sm text-gray-500 border px-4 py-2 rounded-md hover:bg-gray-50">
+          ← Nazaj na seznam
+        </button>
       </div>
 
-      <div class="max-w-2xl">
+      <!-- HISTORY VIEW -->
+      <div *ngIf="view() === 'history'" class="max-w-3xl">
+        <div *ngIf="runsLoading()" class="text-center py-12 text-gray-400">Nalaganje...</div>
+
+        <div *ngIf="!runsLoading() && runs().length === 0"
+             class="bg-white rounded-lg shadow p-12 text-center text-gray-400">
+          <p class="text-lg mb-2">Še ni obračunov</p>
+          <p class="text-sm mb-4">Ustvari prvi obračun plač.</p>
+          <button (click)="view.set('wizard'); korak.set(1)"
+                  class="bg-blue-600 text-white px-5 py-2 rounded-md text-sm hover:bg-blue-700">
+            + Nov obračun
+          </button>
+        </div>
+
+        <div *ngIf="!runsLoading() && runs().length > 0"
+             class="bg-white rounded-lg shadow overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b">
+              <tr>
+                <th class="text-left px-4 py-3 font-medium text-gray-600">Obdobje</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-600">Datum izplačila</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-600">Status</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-600">Napredek</th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of runs()" class="border-t hover:bg-gray-50">
+                <td class="px-4 py-3 font-medium text-gray-800">
+                  {{ mesecNaziv(r.mesec) }} {{ r.leto }}
+                </td>
+                <td class="px-4 py-3 text-gray-600">
+                  {{ r.datum_izplacila | date:'d. M. yyyy' }}
+                </td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                        [class.bg-green-100]="r.status_obracuna === 'Zakljucen'"
+                        [class.text-green-800]="r.status_obracuna === 'Zakljucen'"
+                        [class.bg-blue-100]="r.status_obracuna === 'Procesiranje'"
+                        [class.text-blue-800]="r.status_obracuna === 'Procesiranje'"
+                        [class.bg-red-100]="r.status_obracuna === 'Napaka'"
+                        [class.text-red-800]="r.status_obracuna === 'Napaka'"
+                        [class.bg-gray-100]="r.status_obracuna === 'Osnutek'"
+                        [class.text-gray-800]="r.status_obracuna === 'Osnutek'">
+                    {{ r.status_obracuna === 'Zakljucen' ? '✅ Zaključen' :
+                       r.status_obracuna === 'Procesiranje' ? '⏳ V teku' :
+                       r.status_obracuna === 'Napaka' ? '❌ Napaka' : 'Osnutek' }}
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-2">
+                    <div class="w-20 bg-gray-200 rounded-full h-1.5">
+                      <div class="h-1.5 rounded-full"
+                           [class.bg-green-500]="r.status_obracuna === 'Zakljucen'"
+                           [class.bg-blue-500]="r.status_obracuna === 'Procesiranje'"
+                           [class.bg-red-500]="r.status_obracuna === 'Napaka'"
+                           [style.width.%]="r.progress_procent"></div>
+                    </div>
+                    <span class="text-xs text-gray-500">{{ r.progress_procent }}%</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <a [routerLink]="['/payroll', r.id, 'progress']"
+                     class="text-sm text-blue-600 hover:underline whitespace-nowrap">
+                    Odpri →
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- WIZARD VIEW -->
+      <div *ngIf="view() === 'wizard'" class="max-w-2xl">
         <!-- Koraki -->
         <div class="flex items-center mb-8">
           <div *ngFor="let s of steps; let i = index" class="flex items-center">
@@ -128,6 +228,10 @@ interface Employee { id: string; ime: string; priimek: string; bruto_osnova: num
 })
 export class PayrollWizardComponent implements OnInit {
 
+  view = signal<'history' | 'wizard'>('history');
+  runs = signal<PayrollRun[]>([]);
+  runsLoading = signal(true);
+
   korak = signal(1);
   steps = ['Obdobje', 'Pregled delavcev', 'Sproži obračun'];
   employees = signal<Employee[]>([]);
@@ -155,7 +259,18 @@ export class PayrollWizardComponent implements OnInit {
     this.http.get<{ data: Employee[]; total: number }>(`${API}/employees`).subscribe({
       next: (res) => this.employees.set(res.data),
     });
+    this.loadRuns();
   }
+
+  loadRuns() {
+    this.runsLoading.set(true);
+    this.http.get<PayrollRun[]>(`${API}/payroll/runs`).subscribe({
+      next: (data) => { this.runs.set(data); this.runsLoading.set(false); },
+      error: () => this.runsLoading.set(false),
+    });
+  }
+
+  mesecNaziv(m: number): string { return MESECI[m] ?? String(m); }
 
   computeDatum() {
     const { leto, mesec } = this.periodForm.value;
@@ -172,7 +287,7 @@ export class PayrollWizardComponent implements OnInit {
     this.loading = true;
     this.error = '';
     this.http.post<{ id: string; status: string }>(`${API}/payroll/runs`, this.periodForm.value).subscribe({
-      next: (res) => this.router.navigate(['/payroll', res.id, 'progress']),
+      next: (res) => { this.loadRuns(); this.router.navigate(['/payroll', res.id, 'progress']); },
       error: (err) => {
         if (err?.status === 409) {
           const { leto, mesec } = this.periodForm.value;
