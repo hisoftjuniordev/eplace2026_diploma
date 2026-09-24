@@ -4,6 +4,28 @@ Spletna aplikacija za mesečni obračun plač po slovenski zakonodaji. Zgrajena 
 
 ---
 
+## Kronologija razvoja
+
+| Datum | Faza | Ključne datoteke |
+|---|---|---|
+| 2026-08-08 zjutraj | Uvoz HISOFT26 arhiva (stari sistem) | `HISOFT26/Place.vb`, `VSIOD_1000BRUTO.xlsx` |
+| 2026-08-08 10:19 | LM Arena research batch (34 .md datotek) | `LMARENA_PREDLOGSEMINARSKE/` |
+| 2026-08-08 18:03–19:56 | Arhitekturni načrti | `NACRT_MVP_ARHITEKTURA.md`, `EPLACE2026_AGENT_INSTRUCTIONS.md` |
+| 2026-08-08 22:33–23:33 | Prva koda: baza + Angular skeleton | `database/02_rls.sql`, `database/03_temporal.sql`, `backend/middleware/`, `frontend/` scaffold |
+| 2026-08-09 | Indeks datotek + šolski .md | `TREE.md`, `KAZALO_DATOTEK.md`, `NACRT_PISANJA_DIPLOMSKE.md` |
+| 2026-08-14 | Prvi Word osnutek diplomske | `Diplomska.docx` (963 KB) |
+| 2026-08-17 | Polna stack seja: auth, XML, Docker | `database/01_schema.sql`, `xml/vod.generator.ts`, `xml/sepa.generator.ts`, `docker-compose.yml` |
+| 2026-08-19 | Plačilni motor + UI komponente | `engine/slovenian-payroll-engine.ts`, `workers/payroll.worker.ts`, `hours.component.ts` |
+| 2026-08-19 22:25 | **Prvi uspešni XML izvoz** | `vod-50D1C5B1.xml`, `sepa-50D1C5B1.xml` |
+| 2026-08-24 | TypeScript kompilacija + evalvacija | `backend/dist/` (112 datotek), `EVALVACIJA.md` |
+| 2026-08-25 | Literatura + frontend polish | `diplomska_v2/*.pdf` (6 učbenikov), `payroll-params.component.ts` |
+| 2026-08-30 | **Deployment na Railway + Vercel** | `railway.json`, `vercel.json`, `.env`, `slike_screnshots/` (10 PNG) |
+| 2026-08-31 | Zadnje funkcionalnosti + 1. celovita diploma | `payroll/wizard.component.ts`, `DOKUMENTACIJA.md`, `Diplomska_naloga.md` (83 KB) |
+| 2026-09-03 | Dispozicija oddana + diploma v2 | `Dispozicija_mbratina2rai.pdf`, `diplomska_v2/diploma.md`, `diplomska_v2/CLAUDE.md` |
+| 2026-09-24 | AI metodologija + združena diplomska | `diplomska/12_koncni_dokument_uporaba_ai_dopolnjen_podrobno.md`, `diplomska/diploma_combined.md` (109 KB) |
+
+---
+
 ## Kazalo
 
 - [Tehnologije](#tehnologije)
