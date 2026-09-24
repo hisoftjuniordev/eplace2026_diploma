@@ -6,23 +6,21 @@ Spletna aplikacija za mesečni obračun plač po slovenski zakonodaji. Zgrajena 
 
 ## Kronologija razvoja
 
-| Datum | Faza | Ključne datoteke |
+| Datum | Faza | Kaj nastalo |
 |---|---|---|
-| 2026-08-08 zjutraj | Uvoz HISOFT26 arhiva (stari sistem) | `HISOFT26/Place.vb`, `VSIOD_1000BRUTO.xlsx` |
-| 2026-08-08 10:19 | LM Arena research batch (34 .md datotek) | `LMARENA_PREDLOGSEMINARSKE/` |
-| 2026-08-08 18:03–19:56 | Arhitekturni načrti | `NACRT_MVP_ARHITEKTURA.md`, `EPLACE2026_AGENT_INSTRUCTIONS.md` |
-| 2026-08-08 22:33–23:33 | Prva koda: baza + Angular skeleton | `database/02_rls.sql`, `database/03_temporal.sql`, `backend/middleware/`, `frontend/` scaffold |
-| 2026-08-09 | Indeks datotek + šolski .md | `TREE.md`, `KAZALO_DATOTEK.md`, `NACRT_PISANJA_DIPLOMSKE.md` |
-| 2026-08-14 | Prvi Word osnutek diplomske | `Diplomska.docx` (963 KB) |
-| 2026-08-17 | Polna stack seja: auth, XML, Docker | `database/01_schema.sql`, `xml/vod.generator.ts`, `xml/sepa.generator.ts`, `docker-compose.yml` |
-| 2026-08-19 | Plačilni motor + UI komponente | `engine/slovenian-payroll-engine.ts`, `workers/payroll.worker.ts`, `hours.component.ts` |
-| 2026-08-19 22:25 | **Prvi uspešni XML izvoz** | `vod-50D1C5B1.xml`, `sepa-50D1C5B1.xml` |
-| 2026-08-24 | TypeScript kompilacija + evalvacija | `backend/dist/` (112 datotek), `EVALVACIJA.md` |
-| 2026-08-25 | Literatura + frontend polish | `diplomska_v2/*.pdf` (6 učbenikov), `payroll-params.component.ts` |
-| 2026-08-30 | **Deployment na Railway + Vercel** | `railway.json`, `vercel.json`, `.env`, `slike_screnshots/` (10 PNG) |
-| 2026-08-31 | Zadnje funkcionalnosti + 1. celovita diploma | `payroll/wizard.component.ts`, `DOKUMENTACIJA.md`, `Diplomska_naloga.md` (83 KB) |
-| 2026-09-03 | Dispozicija oddana + diploma v2 | `Dispozicija_mbratina2rai.pdf`, `diplomska_v2/diploma.md`, `diplomska_v2/CLAUDE.md` |
-| 2026-09-24 | AI metodologija + združena diplomska | `diplomska/12_koncni_dokument_uporaba_ai_dopolnjen_podrobno.md`, `diplomska/diploma_combined.md` (109 KB) |
+| 08. avg 2026 | **Analiza starega sistema** | Uvoz HISOFT26 arhiva (VB koda, 148 SQL tabel), LM Arena AI research (34 .md), arhitekturni načrti |
+| 08. avg 2026 (večer) | **Prva koda** | Baza (RLS, temporal), Angular scaffold, backend middleware |
+| 09. avg 2026 | **Projektni indeks** | TREE.md, kazala datotek, načrt pisanja diplomske |
+| 14. avg 2026 | **1. osnutek diplomske** | Diplomska.docx (963 KB) — prvi Word dokument |
+| 17. avg 2026 | **Polni stack** | Celotna baza (01–03 SQL), XML generatorji (VOD, SEPA), Docker Compose |
+| 19. avg 2026 | **Plačilni motor + UI** | SlovenianPayrollEngine, BullMQ worker, vnos ur |
+| 19. avg 2026 (22:25) | **✅ Prvi XML izvoz** | vod-50D1C5B1.xml, sepa-50D1C5B1.xml — deluje produkcijsko |
+| 24. avg 2026 | **Kompilacija + evalvacija** | TypeScript build (112 datotek v dist/), EVALVACIJA.md |
+| 25. avg 2026 | **Literatura + polish** | 6 akademskih PDF virov, payroll-params UI komponenta |
+| 30. avg 2026 | **🚀 Produkcijski deployment** | Railway (backend) + Vercel (frontend), .env konfiguracija, 10 screenshotov |
+| 31. avg 2026 | **Zaključne funkcionalnosti** | Obračunski čarovnik, DOKUMENTACIJA.md, 1. celovita diplomska (83 KB) |
+| 03. sep 2026 | **Dispozicija oddana** | Dispozicija_mbratina2rai.pdf, diploma v2 (78 KB), CLAUDE.md za diplomsko |
+| 24. sep 2026 | **Diplomska dokončana** | AI metodologija (39 KB), združena diplomska (110 KB), Word izvoz brez placeholderjev, Diploma_2.md iz končnega docx, kronološki indeks 357 datotek |
 
 ---
 
@@ -45,7 +43,7 @@ Spletna aplikacija za mesečni obračun plač po slovenski zakonodaji. Zgrajena 
 
 | Sloj | Tehnologija |
 |---|---|
-| Frontend | Angular 17 (standalone components, signals) |
+| Frontend | Angular 18 (standalone components, signals) |
 | Backend | Node.js 22 + Express + TypeScript |
 | Baza | Azure SQL (MS SQL Server) |
 | Queue | BullMQ + Redis |
@@ -184,11 +182,11 @@ Vsaka operacija (vnos, urejanje, brisanje, izvoz) se zabeleži v `audit_logs` z:
 eplace2026/
 ├── backend/
 │   ├── src/
-│   │   ├── app.ts                  # Express aplikacija + worker bootstrap
+│   │   ├── app.ts                      # Express aplikacija + worker bootstrap
 │   │   ├── config/
-│   │   │   ├── db.ts               # MSSQL pool + withTenant() helper
-│   │   │   └── redis.ts            # ioredis connection
-│   │   ├── controllers/            # HTTP route handlers
+│   │   │   ├── db.ts                   # MSSQL pool + withTenant() helper
+│   │   │   └── redis.ts                # ioredis connection
+│   │   ├── controllers/                # HTTP route handlers
 │   │   │   ├── auth.controller.ts
 │   │   │   ├── employees.controller.ts
 │   │   │   ├── hours.controller.ts
@@ -200,54 +198,77 @@ eplace2026/
 │   │   ├── engine/
 │   │   │   └── slovenian-payroll-engine.ts  # Jedro obračuna
 │   │   ├── middleware/
-│   │   │   ├── auth.middleware.ts   # JWT preverjanje
-│   │   │   ├── role.middleware.ts   # RBAC (Skrbnik / Uporabnik / SistemskiAdmin)
-│   │   │   └── validate.middleware.ts  # Zod validacija
+│   │   │   ├── auth.middleware.ts      # JWT preverjanje
+│   │   │   ├── role.middleware.ts      # RBAC (Skrbnik / Uporabnik / SistemskiAdmin)
+│   │   │   ├── roles.middleware.ts     # Alternativna RBAC varianta
+│   │   │   ├── schemas.ts              # Zod sheme za validacijo
+│   │   │   └── validate.middleware.ts  # Zod validacijski middleware
 │   │   ├── queues/
-│   │   │   └── payroll.queue.ts    # BullMQ queue definicija
-│   │   ├── repositories/           # SQL dostop (parameterized queries)
+│   │   │   └── payroll.queue.ts        # BullMQ queue definicija
+│   │   ├── repositories/               # SQL dostop (parameterized queries)
 │   │   │   ├── employee.repo.ts
 │   │   │   ├── payroll.repo.ts
 │   │   │   ├── payroll-params.repo.ts
 │   │   │   └── jobpositions.repo.ts
+│   │   ├── scripts/
+│   │   │   └── seed.ts                 # Seed skripta za testne podatke
+│   │   ├── utils/
+│   │   │   └── audit.ts                # Pomožne funkcije za revizijsko sled
 │   │   ├── workers/
-│   │   │   └── payroll.worker.ts   # BullMQ worker
+│   │   │   └── payroll.worker.ts       # BullMQ worker
 │   │   ├── xml/
 │   │   │   ├── sepa.generator.ts
 │   │   │   ├── vod.generator.ts
 │   │   │   └── reko.generator.ts
 │   │   └── types/
-│   │       └── interfaces.ts       # Skupni TypeScript tipi
+│   │       ├── interfaces.ts           # Skupni TypeScript tipi
+│   │       └── express.d.ts            # Express type razširitve
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── .env.example
 │
 ├── frontend/
-│   └── src/app/
-│       ├── core/
-│       │   └── auth.service.ts     # JWT shranjevanje, signal za user state
-│       ├── features/
-│       │   ├── auth/               # Login stran
-│       │   ├── employees/          # Seznam + forma za delavce
-│       │   ├── hours/              # Vnos mesečnih ur
-│       │   ├── payroll/            # Čarovnik, napredek, plačilna lista
-│       │   ├── job-positions/      # Delovna mesta
-│       │   ├── payroll-params/     # Pregled parametrov obračuna
-│       │   └── settings/           # Nastavitve tenanta
-│       ├── shell.component.ts      # Layout z navigacijo
-│       └── app.routes.ts
+│   ├── src/app/
+│   │   ├── core/
+│   │   │   ├── auth.service.ts         # JWT shranjevanje, signal za user state
+│   │   │   └── jwt.interceptor.ts      # HTTP interceptor za dodajanje JWT
+│   │   ├── features/
+│   │   │   ├── auth/                   # Login stran
+│   │   │   ├── employees/              # Seznam + forma za delavce
+│   │   │   ├── hours/                  # Vnos mesečnih ur
+│   │   │   ├── payroll/                # Čarovnik, napredek, plačilna lista
+│   │   │   │   ├── wizard.component.ts
+│   │   │   │   ├── progress.component.ts
+│   │   │   │   └── payslip.component.ts
+│   │   │   ├── job-positions/          # Delovna mesta
+│   │   │   ├── payroll-params/         # Pregled parametrov obračuna
+│   │   │   └── settings/               # Nastavitve tenanta
+│   │   ├── shell.component.ts          # Layout z navigacijo
+│   │   └── app.routes.ts
+│   ├── src/environments/
+│   │   ├── environment.ts              # Razvojne nastavitve (apiUrl localhost)
+│   │   └── environment.production.ts  # Produkcijske nastavitve (apiUrl Railway)
+│   └── vercel.json                     # Vercel deploy config (Angular SPA routing)
 │
 ├── database/
-│   ├── 01_schema.sql               # Vse tabele
-│   ├── 02_rls.sql                  # Row-Level Security
-│   ├── 03_temporal.sql             # Temporal tables (history)
-│   ├── 04_seed.sql                 # Testni podatki
-│   ├── 05_alter.sql                # Migracija 1
-│   ├── 06_payroll_params.sql       # Parametri obračuna
-│   └── 07_alter2.sql               # Migracija 2 (dual-mode)
+│   ├── 01_schema.sql                   # Vse tabele
+│   ├── 02_rls.sql                      # Row-Level Security
+│   ├── 03_temporal.sql                 # Temporal tables (history)
+│   ├── 04_seed.sql                     # Testni podatki
+│   ├── 05_alter.sql                    # Migracija 1
+│   ├── 06_payroll_params.sql           # Parametri obračuna
+│   └── 07_alter2.sql                   # Migracija 2 (dual-mode)
 │
-├── railway.json                    # Railway deploy config
-├── RLS_RAZLAGA.md                  # Podrobna razlaga varnostnega sistema
+├── diplomska/                          # Diplomska naloga — dokumenti
+│   ├── diploma_combined.md             # Združena diplomska (110 KB)
+│   ├── diploma_combined.docx           # Word izvoz, brez placeholderjev (89 KB)
+│   ├── Diploma_2.md                    # Markdown iz končnega Diploma_2.docx (93 KB)
+│   ├── 12_koncni_dokument_uporaba_ai_dopolnjen_podrobno.md  # AI metodologija (39 KB)
+│   └── TREE_chronological.md          # Kronološki indeks 357 datotek (44 KB)
+│
+├── docker-compose.yml                  # Redis + lokalni razvoj
+├── railway.json                        # Railway backend deploy config
+├── RLS_RAZLAGA.md                      # Podrobna razlaga varnostnega sistema
 └── README.md
 ```
 
